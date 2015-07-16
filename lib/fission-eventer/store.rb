@@ -21,18 +21,24 @@ module Fission
         end
       end
 
+      # Disable events
+      def event!(*_)
+        # disable
+      end
+
       # Store event data
       #
       # @param message [Carnivore::Message]
       def execute(message)
         failure_wrap(message) do |payload|
           event = Fission::Data::Models::Event.new
+          event.message_id = payload.get(:data, :event, :data, :message_id)
           event.type = payload.get(:data, :event, :type)
           event.data = payload.fetch(:data, :event, :data, Smash.new)
           event.stamp = payload.fetch(:data, :event, :stamp, Time.now.to_f)
           debug "Storing received event: #{event.inspect}"
           event.save
-          job_completed(:eventer, payload, message)
+          message.confirm! # do not allow continuation
         end
       end
 
