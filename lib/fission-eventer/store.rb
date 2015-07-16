@@ -17,7 +17,7 @@ module Fission
       # @return [Truthy, Falsey]
       def valid?(message)
         super do |payload|
-          payload[:name].to_s == 'event'
+          payload.get(:data, :event)
         end
       end
 
@@ -38,7 +38,7 @@ module Fission
           event.stamp = payload.fetch(:data, :event, :stamp, Time.now.to_f)
           debug "Storing received event: #{event.inspect}"
           event.save
-          message.confirm! # do not allow continuation
+          job_completed(:eventer, payload, message)
         end
       end
 
