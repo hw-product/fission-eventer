@@ -38,7 +38,7 @@ module Fission
           event.stamp = payload.fetch(:data, :event, :stamp, Time.now.to_f)
           debug "Storing received event: #{event.inspect}"
           event.save
-          job_completed(:eventer, payload, message)
+          message.confirm!
         end
       end
 
